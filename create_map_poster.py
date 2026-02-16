@@ -493,6 +493,11 @@ def create_poster(
     display_city=None,
     display_country=None,
     fonts=None,
+    show_city=True,
+    show_gradient=True,
+    show_country=True,
+    show_coords=True,
+    show_attribution=True,
 ):
     """
     Generate a complete map poster with roads, water, parks, and typography.
@@ -612,7 +617,7 @@ def create_poster(
     ax.set_ylim(crop_ylim)
 
     # Layer 3: Gradients (Top and Bottom)
-    if args.show_gradient:
+    if show_gradient:
         create_gradient_fade(ax, THEME['gradient_color'], location='bottom', zorder=10)
         create_gradient_fade(ax, THEME['gradient_color'], location='top', zorder=10)
 
@@ -682,7 +687,7 @@ def create_poster(
         )
 
     # --- BOTTOM TEXT ---
-    if args.show_city:
+    if show_city:
         ax.text(
             0.5,
             0.14,
@@ -694,7 +699,7 @@ def create_poster(
             zorder=11,
         )
 
-    if args.show_country:
+    if show_country:
         ax.text(
             0.5,
             0.10,
@@ -706,7 +711,7 @@ def create_poster(
             zorder=11,
         )
 
-    if args.show_coords:
+    if show_coords:
         lat, lon = point
         coords = (
             f"{lat:.4f}° N / {lon:.4f}° E"
@@ -728,7 +733,7 @@ def create_poster(
             zorder=11,
         )
 
-    if args.show_country or args.show_coords:
+    if show_country or show_coords:
         ax.plot(
             [0.4, 0.6],
             [0.125, 0.125],
@@ -739,7 +744,7 @@ def create_poster(
         )
 
     # --- ATTRIBUTION (bottom right) ---
-    if args.show_attribution:
+    if show_attribution:
         if FONTS:
             font_attr = FontProperties(fname=FONTS["light"], size=8)
         else:
@@ -1048,6 +1053,11 @@ Examples:
                 display_city=args.display_city,
                 display_country=args.display_country,
                 fonts=custom_fonts,
+                show_city=args.show_city,
+                show_gradient=args.show_gradient,
+                show_country=args.show_country,
+                show_coords=args.show_coords,
+                show_attribution=args.show_attribution,
             )
 
         print("\n" + "=" * 50)

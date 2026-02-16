@@ -612,8 +612,9 @@ def create_poster(
     ax.set_ylim(crop_ylim)
 
     # Layer 3: Gradients (Top and Bottom)
-    create_gradient_fade(ax, THEME['gradient_color'], location='bottom', zorder=10)
-    create_gradient_fade(ax, THEME['gradient_color'], location='top', zorder=10)
+    if args.show_gradient:
+        create_gradient_fade(ax, THEME['gradient_color'], location='bottom', zorder=10)
+        create_gradient_fade(ax, THEME['gradient_color'], location='top', zorder=10)
 
     # Calculate scale factor based on smaller dimension (reference 12 inches)
     # This ensures text scales properly for both portrait and landscape orientations
@@ -681,76 +682,81 @@ def create_poster(
         )
 
     # --- BOTTOM TEXT ---
-    ax.text(
-        0.5,
-        0.14,
-        spaced_city,
-        transform=ax.transAxes,
-        color=THEME["text"],
-        ha="center",
-        fontproperties=font_main_adjusted,
-        zorder=11,
-    )
+    if args.show_city:
+        ax.text(
+            0.5,
+            0.14,
+            spaced_city,
+            transform=ax.transAxes,
+            color=THEME["text"],
+            ha="center",
+            fontproperties=font_main_adjusted,
+            zorder=11,
+        )
 
-    ax.text(
-        0.5,
-        0.10,
-        display_country.upper(),
-        transform=ax.transAxes,
-        color=THEME["text"],
-        ha="center",
-        fontproperties=font_sub,
-        zorder=11,
-    )
+    if args.show_country:
+        ax.text(
+            0.5,
+            0.10,
+            display_country.upper(),
+            transform=ax.transAxes,
+            color=THEME["text"],
+            ha="center",
+            fontproperties=font_sub,
+            zorder=11,
+        )
 
-    lat, lon = point
-    coords = (
-        f"{lat:.4f}° N / {lon:.4f}° E"
-        if lat >= 0
-        else f"{abs(lat):.4f}° S / {lon:.4f}° E"
-    )
-    if lon < 0:
-        coords = coords.replace("E", "W")
+    if args.show_coords:
+        lat, lon = point
+        coords = (
+            f"{lat:.4f}° N / {lon:.4f}° E"
+            if lat >= 0
+            else f"{abs(lat):.4f}° S / {lon:.4f}° E"
+        )
+        if lon < 0:
+            coords = coords.replace("E", "W")
 
-    ax.text(
-        0.5,
-        0.07,
-        coords,
-        transform=ax.transAxes,
-        color=THEME["text"],
-        alpha=0.7,
-        ha="center",
-        fontproperties=font_coords,
-        zorder=11,
-    )
+        ax.text(
+            0.5,
+            0.07,
+            coords,
+            transform=ax.transAxes,
+            color=THEME["text"],
+            alpha=0.7,
+            ha="center",
+            fontproperties=font_coords,
+            zorder=11,
+        )
 
-    ax.plot(
-        [0.4, 0.6],
-        [0.125, 0.125],
-        transform=ax.transAxes,
-        color=THEME["text"],
-        linewidth=1 * scale_factor,
-        zorder=11,
-    )
+    if args.show_country or args.show_coords:
+        ax.plot(
+            [0.4, 0.6],
+            [0.125, 0.125],
+            transform=ax.transAxes,
+            color=THEME["text"],
+            linewidth=1 * scale_factor,
+            zorder=11,
+        )
 
     # --- ATTRIBUTION (bottom right) ---
-    if FONTS:
-        font_attr = FontProperties(fname=FONTS["light"], size=8)
-    else:
-        font_attr = FontProperties(family="monospace", size=8)
+    if args.show_attribution:
+        if FONTS:
+            font_attr = FontProperties(fname=FONTS["light"], size=8)
+        else:
+            font_attr = FontProperties(family="monospace", size=8)
 
-    ax.text(
-        0.98,
-        0.02,
-        "© OpenStreetMap contributors",
-        transform=ax.transAxes,
-        color=THEME["text"],
-        alpha=0.5,
-        ha="right",
-        va="bottom",
-        fontproperties=font_attr,
-        zorder=11,
-    )
+        ax.text(
+            0.98,
+            0.02,
+            "© OpenStreetMap contributors",
+            transform=ax.transAxes,
+            color=THEME["text"],
+            alpha=0.5,
+            ha="right",
+            va="bottom",
+            fontproperties=font_attr,
+            zorder=11,
+        )
 
     # 5. Save
     print(f"Saving to {output_file}...")
@@ -873,6 +879,11 @@ Examples:
 
     parser.add_argument("--city", "-c", type=str, help="City name")
     parser.add_argument("--country", "-C", type=str, help="Country name")
+    parser.add_argument("--no-city", action="store_false", dest="show_city", help="Disable city display")
+    parser.add_argument("--no-gradient", action="store_false", dest="show_gradient", help="Disable gradient fade")
+    parser.add_argument("--no-country", action="store_false", dest="show_country", help="Disable country display")
+    parser.add_argument("--no-coords", action="store_false", dest="show_coords", help="Disable coordinates display")
+    parser.add_argument("--no-attribution", action="store_false", dest="show_attribution", help="Disable attribution display")
     parser.add_argument(
         "--latitude",
         "-lat",
